@@ -17,6 +17,7 @@ related_skills:
 
 - [ ] 모든 문서 ID가 유일하다.
 - [ ] 모든 wikilink가 존재하는 문서 또는 의도된 future note를 가리킨다.
+- [ ] heading fragment가 있는 wikilink는 실제 target heading과 일치한다.
 - [ ] build output, dependency directory, generated files는 색인에서 제외된다.
 - [ ] heading, frontmatter, wikilink, 파일 경로가 검색 대상에 포함된다.
 
@@ -38,4 +39,3 @@ related_skills:
 - [ ] confirmed 분석에는 코드 경로 또는 manifest 근거가 있다.
 - [ ] assumed 분석은 사용자 확인 또는 추가 evidence가 필요하다고 표시된다.
 - [ ] unknown은 임의로 채우지 않는다.
-

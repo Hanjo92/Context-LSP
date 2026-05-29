@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.js",
-    "verify": "npm test && node src/cli.js index --docs docs/planning >/tmp/context-lsp-index.json && node src/cli.js retrieve --docs docs/planning --task \"기능 구현 계획 작성\" --type plan >/tmp/context-lsp-pack.json && node src/cli.js verify --docs docs/planning >/tmp/context-lsp-verify.json"
+    "verify": "npm test && node src/cli.js index --docs docs/planning >/tmp/context-lsp-index.json && node src/cli.js retrieve --docs docs/planning --task \"기능 구현 계획 작성\" --type plan >/tmp/context-lsp-pack.json && node src/cli.js verify --docs docs/planning >/tmp/context-lsp-verify.json && node src/cli.js guarantees >/tmp/context-lsp-guarantees.json"
   },
   "keywords": [
     "codex",

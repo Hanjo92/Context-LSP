@@ -27,6 +27,7 @@ Context-LSP는 AI 코딩 에이전트가 프로젝트의 기획/설계 의도를
 - 모듈 목록: [[modules-overview]]
 - Codex 스킬 목록: [[skills-overview]]
 - 검증 시나리오: [[acceptance-scenarios]]
+- 구현 보장점: [[implementation-guarantees]]
 
 ## 작업별 진입점
 
@@ -37,6 +38,7 @@ Context-LSP는 AI 코딩 에이전트가 프로젝트의 기획/설계 의도를
 | 구현 계획 작성 | [[skill-plan-with-project-brain]], [[retrieval-pipeline]], [[ADR-0005-context-pack-contract]] | 계획 전에 `ContextPack`을 만든다. |
 | 코드 출력 제약 | [[skill-generate-compliant-code]], [[module-output-guard]], [[ADR-0006-warning-first-architecture-guard]] | v1은 차단보다 경고와 근거 제시를 우선한다. |
 | 설계 drift 검증 | [[skill-verify-architecture-drift]], [[module-drift-detector]], [[architecture-review-checklist]] | 문서와 코드의 불일치를 finding으로 남긴다. |
+| 구현 보장 확인 | [[implementation-guarantees]], [[acceptance-scenarios]], [[retrieval-quality-checklist]] | 보장점은 테스트 또는 검증 명령으로 뒷받침된 것만 기록한다. |
 
 ## 핵심 흐름
 
@@ -51,4 +53,3 @@ Brownfield 흐름은 기존 저장소 분석에서 시작해 [[skill-reverse-eng
 - v1은 모든 IDE를 실시간으로 제어하는 완전한 LSP 제품이 아니다.
 - v1은 아키텍처 위반을 자동으로 차단하지 않는다.
 - v1은 문서가 틀린 경우에도 무조건 문서를 우선하지 않는다. 신뢰도와 증거를 함께 기록한다.
-

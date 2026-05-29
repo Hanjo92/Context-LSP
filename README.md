@@ -1,6 +1,6 @@
 # Context-LSP
 
-Context-LSP is a Codex-centered context layer for project planning, code output, and architecture drift checks.
+Context-LSP is a Codex-centered context layer for project planning, code output, and warning-first architecture context checks.
 
 The current Phase 1 MVP implements local rag-lite over Markdown planning docs:
 
@@ -21,6 +21,7 @@ node src/cli.js bootstrap --root . --docs docs/planning
 node src/cli.js index --docs docs/planning
 node src/cli.js retrieve --docs docs/planning --task "기능 구현 계획 작성" --type plan
 node src/cli.js verify --docs docs/planning
+node src/cli.js guarantees
 ```
 
 ## Planning Vault
@@ -33,3 +34,9 @@ Start from:
 
 The v1 guard is warning-first. Findings provide evidence and recommended actions but do not hard block changes.
 
+## Guarantees
+
+The current implementation guarantee registry is available in two forms:
+
+- human-readable: `docs/planning/06-validation/implementation-guarantees.md`
+- machine-readable: `node src/cli.js guarantees`

@@ -32,6 +32,7 @@ related_skills:
 | 구현 계획 작성 | [[skill-plan-with-project-brain]], [[retrieval-pipeline]], [[interface-contracts]] | [[ADR-0005-context-pack-contract]] | [[skill-retrieve-project-context]], [[skill-plan-with-project-brain]] | 관련 없는 문서까지 대량 주입하지 않는다. |
 | 코드 출력 | [[skill-generate-compliant-code]], [[module-output-guard]], [[architecture-review-checklist]] | [[ADR-0006-warning-first-architecture-guard]] | [[skill-generate-compliant-code]] | warning을 사용자 승인 없는 hard block으로 바꾸지 않는다. |
 | 설계 검증 | [[skill-verify-architecture-drift]], [[module-drift-detector]], [[retrieval-quality-checklist]] | [[ADR-0006-warning-first-architecture-guard]] | [[skill-verify-architecture-drift]] | 코드와 문서 중 하나만 진실이라고 가정하지 않는다. |
+| 구현 보장 확인 | [[implementation-guarantees]], [[acceptance-scenarios]], [[architecture-review-checklist]] | [[ADR-0006-warning-first-architecture-guard]] | [[skill-verify-architecture-drift]] | 테스트나 검증 명령 없는 보장을 추가하지 않는다. |
 
 ## 최소 검색 순서
 
@@ -40,4 +41,3 @@ related_skills:
 3. 작업 유형별 첫 문서와 필수 ADR을 읽는다.
 4. [[module-context-retriever]]를 통해 관련 문서, 코드 경로, ADR을 `ContextPack`에 담는다.
 5. [[module-constraint-extractor]]로 강제 규칙과 권장 규칙을 분리한다.
-

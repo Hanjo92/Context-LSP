@@ -29,7 +29,7 @@ export async function buildIndex({ docsDir, exclude = DEFAULT_EXCLUDES } = {}) {
     documentsByRelativePath.set(doc.relativePath.replace(/\.md$/, ''), doc);
   }
 
-  const brokenLinks = findBrokenLinks(documents, {
+  const { brokenLinks, brokenFragments } = findBrokenReferences(documents, {
     documentsByStem,
     documentsByRelativePath
   });
@@ -41,7 +41,8 @@ export async function buildIndex({ docsDir, exclude = DEFAULT_EXCLUDES } = {}) {
     documentsByStem,
     documentsByRelativePath,
     duplicateIds,
-    brokenLinks
+    brokenLinks,
+    brokenFragments
   };
 }
 
@@ -62,23 +63,38 @@ async function listMarkdownFiles(dir, exclude) {
   return files.sort();
 }
 
-function findBrokenLinks(documents, lookup) {
-  const broken = [];
+function findBrokenReferences(documents, lookup) {
+  const brokenLinks = [];
+  const brokenFragments = [];
 
   for (const doc of documents) {
     for (const link of doc.wikilinks) {
-      if (!resolveDoc(link.target, lookup)) {
-        broken.push({
+      const targetDoc = resolveDoc(link.target, lookup);
+      if (!targetDoc) {
+        brokenLinks.push({
           sourcePath: doc.path,
           sourceRelativePath: doc.relativePath,
           target: link.target,
+          raw: link.raw
+        });
+        continue;
+      }
+
+      if (link.section && !hasHeading(targetDoc, link.section)) {
+        brokenFragments.push({
+          sourcePath: doc.path,
+          sourceRelativePath: doc.relativePath,
+          targetPath: targetDoc.path,
+          targetRelativePath: targetDoc.relativePath,
+          target: link.target,
+          section: link.section,
           raw: link.raw
         });
       }
     }
   }
 
-  return broken;
+  return { brokenLinks, brokenFragments };
 }
 
 export function resolveDoc(target, { documentsByStem, documentsByRelativePath }) {
@@ -98,7 +114,8 @@ export function serializeIndex(index) {
     root: index.root,
     documents: index.documents.map(summarizeDocument),
     duplicateIds: index.duplicateIds,
-    brokenLinks: index.brokenLinks
+    brokenLinks: index.brokenLinks,
+    brokenFragments: index.brokenFragments
   };
 }
 
@@ -115,7 +132,10 @@ export function summarizeDocument(doc) {
   };
 }
 
+function hasHeading(doc, section) {
+  return doc.headings.some((heading) => heading === section);
+}
+
 export function pathFromRoot(root, filePath) {
   return relative(root, filePath);
 }
-

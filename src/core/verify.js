@@ -21,6 +21,15 @@ export function verifyVault(index) {
     });
   }
 
+  for (const broken of index.brokenFragments || []) {
+    findings.push({
+      severity: 'warning',
+      kind: 'broken-wikilink-fragment',
+      message: `Broken wikilink heading fragment [[${broken.raw}]] in ${broken.sourceRelativePath}`,
+      evidence: [{ path: broken.sourcePath }, { path: broken.targetPath }],
+      recommended_action: 'Update the heading fragment or rename the target heading to match the link.'
+    });
+  }
+
   return findings;
 }
-

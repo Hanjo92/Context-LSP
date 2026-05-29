@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { resolve } from 'node:path';
 import { createProjectSnapshot } from './core/bootstrap.js';
+import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
 import { normalizeContextQuery, retrieveContextPack } from './core/retriever.js';
 import { verifyVault } from './core/verify.js';
@@ -27,6 +28,8 @@ try {
     printJson(verifyVault(index));
   } else if (command === 'bootstrap') {
     printJson(await createProjectSnapshot({ root: options.root || process.cwd(), docs: options.docs }));
+  } else if (command === 'guarantees') {
+    printJson(listGuarantees());
   } else {
     usage();
     process.exitCode = 1;
@@ -68,5 +71,6 @@ function usage() {
   context-lsp index --docs docs/planning
   context-lsp retrieve --docs docs/planning --task "..." --type plan [--concept ContextPack]
   context-lsp verify --docs docs/planning
-  context-lsp bootstrap --root . --docs docs/planning`);
+  context-lsp bootstrap --root . --docs docs/planning
+  context-lsp guarantees`);
 }

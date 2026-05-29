@@ -28,10 +28,13 @@ related_skills:
 
 완료 기준: Greenfield/Brownfield 샘플 저장소에서 `ContextPack`과 drift report를 생성한다.
 
+현재 상태: 구현됨. 보장 범위는 [[implementation-guarantees]]에 등록한다.
+
 ## 단계 2: Local CLI and Index
 
 - 로컬 CLI로 vault 초기화, 인덱스 갱신, 검색, 검증을 실행한다.
 - JSON 기반 `ContextPack`과 `VerificationFinding` 출력을 안정화한다.
+- 보장점 레지스트리를 CLI 출력으로 제공한다.
 
 완료 기준: Codex 스킬이 CLI 결과를 읽어 계획에 반영한다.
 

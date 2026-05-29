@@ -4,6 +4,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { createProjectSnapshot } from '../src/core/bootstrap.js';
+import { listGuarantees } from '../src/core/guarantees.js';
 import { buildIndex } from '../src/core/indexer.js';
 import { extractConstraints } from '../src/core/constraints.js';
 import { normalizeContextQuery, retrieveContextPack } from '../src/core/retriever.js';
@@ -12,6 +13,8 @@ import { verifyVault } from '../src/core/verify.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixtureVault = join(__dirname, 'fixtures', 'vault');
 const brokenVault = join(__dirname, 'fixtures', 'broken-vault');
+const brokenFragmentVault = join(__dirname, 'fixtures', 'broken-fragment-vault');
+const duplicateIdVault = join(__dirname, 'fixtures', 'duplicate-id-vault');
 const greenfieldRoot = join(__dirname, 'fixtures', 'greenfield');
 const docsOnlyRoot = join(__dirname, 'fixtures', 'docs-only');
 const brownfieldRoot = join(__dirname, 'fixtures', 'brownfield');
@@ -40,6 +43,16 @@ test('buildIndex reports broken wikilinks with source paths', async () => {
     ['missing-adr', 'missing-note']
   );
   assert.ok(index.brokenLinks.every((link) => link.sourcePath.endsWith('00-index.md')));
+});
+
+test('buildIndex reports broken heading fragments when target document exists', async () => {
+  const index = await buildIndex({ docsDir: brokenFragmentVault });
+
+  assert.equal(index.brokenLinks.length, 0);
+  assert.equal(index.brokenFragments.length, 1);
+  assert.equal(index.brokenFragments[0].target, 'target-note');
+  assert.equal(index.brokenFragments[0].section, 'Missing Heading');
+  assert.ok(index.brokenFragments[0].sourcePath.endsWith('source-note.md'));
 });
 
 test('retrieveContextPack assembles relevant docs, constraints, confidence, and gaps', async () => {
@@ -79,6 +92,27 @@ test('verifyVault returns warning-first findings for broken links without hard b
   assert.equal(findings.length, 2);
   assert.ok(findings.every((finding) => finding.severity === 'warning'));
   assert.ok(findings.every((finding) => finding.kind === 'broken-wikilink'));
+});
+
+test('verifyVault returns warning-first findings for broken heading fragments', async () => {
+  const index = await buildIndex({ docsDir: brokenFragmentVault });
+  const findings = verifyVault(index);
+
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].severity, 'warning');
+  assert.equal(findings[0].kind, 'broken-wikilink-fragment');
+  assert.match(findings[0].message, /Missing Heading/);
+});
+
+test('verifyVault returns error findings for duplicate document ids', async () => {
+  const index = await buildIndex({ docsDir: duplicateIdVault });
+  const findings = verifyVault(index);
+
+  assert.equal(index.duplicateIds.length, 1);
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].severity, 'error');
+  assert.equal(findings[0].kind, 'duplicate-document-id');
+  assert.match(findings[0].message, /DUPLICATE-ID/);
 });
 
 test('CLI retrieve outputs a JSON ContextPack', () => {
@@ -125,4 +159,25 @@ test('CLI bootstrap outputs a ProjectSnapshot JSON document', () => {
   assert.equal(snapshot.mode, 'brownfield');
   assert.equal(snapshot.recommended_next_skill, 'reverse-engineer-project');
   assert.ok(snapshot.evidence.length >= 3);
+});
+
+test('listGuarantees returns only verification-backed implementation guarantees', () => {
+  const guarantees = listGuarantees();
+
+  assert.ok(guarantees.length >= 6);
+  assert.ok(guarantees.every((guarantee) => guarantee.id.startsWith('G-')));
+  assert.ok(guarantees.every((guarantee) => guarantee.status === 'verified'));
+  assert.ok(guarantees.every((guarantee) => guarantee.verification.length > 0));
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-INDEX-WIKILINKS'));
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-HEADING-FRAGMENTS'));
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-DUPLICATE-IDS'));
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-WARNING-FIRST'));
+});
+
+test('CLI guarantees outputs the guarantee registry as JSON', () => {
+  const output = execFileSync(process.execPath, [cliPath, 'guarantees'], { encoding: 'utf8' });
+  const guarantees = JSON.parse(output);
+
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-CONTEXTPACK'));
+  assert.ok(guarantees.every((guarantee) => Array.isArray(guarantee.source_docs)));
 });
