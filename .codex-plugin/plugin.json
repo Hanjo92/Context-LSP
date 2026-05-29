@@ -1,0 +1,35 @@
+{
+  "name": "context-lsp",
+  "version": "0.1.0",
+  "description": "Codex-centered context layer for project planning, code output, and architecture drift checks.",
+  "author": {
+    "name": "Hanjo92"
+  },
+  "repository": "https://github.com/Hanjo92/Context-LSP",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "context",
+    "rag",
+    "architecture",
+    "docs-as-code"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Context LSP",
+    "shortDescription": "Project context retrieval and drift checks for Codex.",
+    "longDescription": "Context LSP helps Codex retrieve project planning docs, build ContextPacks, and report architecture drift before and after implementation work.",
+    "developerName": "Hanjo92",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use Context LSP to plan this change from project docs.",
+      "Use Context LSP to verify architecture drift.",
+      "Use Context LSP to update the project brain."
+    ]
+  }
+}
+
