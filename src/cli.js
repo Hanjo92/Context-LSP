@@ -4,7 +4,7 @@ import { createProjectSnapshot } from './core/bootstrap.js';
 import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
 import { normalizeContextQuery, retrieveContextPack } from './core/retriever.js';
-import { verifyVault } from './core/verify.js';
+import { verifyCodeDrift, verifyVault } from './core/verify.js';
 
 const args = process.argv.slice(2);
 const command = args.shift();
@@ -20,12 +20,22 @@ try {
     const query = normalizeContextQuery({
       task: options.task || '',
       task_type: options.type || 'plan',
-      target_concepts: options.concept || []
+      target_concepts: options.concept || [],
+      target_paths: normalizeOptionList(options.target)
     });
-    printJson(retrieveContextPack(index, query));
+    printJson(await retrieveContextPack(index, query, { root: options.root || null }));
   } else if (command === 'verify') {
     const index = await buildIndex({ docsDir: requiredPath(options.docs, 'docs') });
-    printJson(verifyVault(index));
+    const vaultFindings = verifyVault(index);
+    const driftFindings = options.root || options.changed || options.scan
+      ? await verifyCodeDrift({
+        index,
+        root: options.root || process.cwd(),
+        changedPaths: normalizeOptionList(options.changed),
+        scan: Boolean(options.scan)
+      })
+      : [];
+    printJson([...vaultFindings, ...driftFindings]);
   } else if (command === 'bootstrap') {
     printJson(await createProjectSnapshot({ root: options.root || process.cwd(), docs: options.docs }));
   } else if (command === 'guarantees') {
@@ -66,11 +76,16 @@ function printJson(value) {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }
 
+function normalizeOptionList(value) {
+  if (value === undefined || value === null) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
 function usage() {
   console.error(`Usage:
   context-lsp index --docs docs/planning
-  context-lsp retrieve --docs docs/planning --task "..." --type plan [--concept ContextPack]
-  context-lsp verify --docs docs/planning
+  context-lsp retrieve --docs docs/planning --task "..." --type plan [--root .] [--concept ContextPack] [--target src]
+  context-lsp verify --docs docs/planning [--root . --changed src/file.js]
   context-lsp bootstrap --root . --docs docs/planning
   context-lsp guarantees`);
 }

@@ -23,12 +23,15 @@ related_skills:
 - 관련 `ContextPack`
 - 기존 TraceLink
 - 문서 상태와 ADR
+- 선택 입력: repository root와 전체 scan 여부
 
 ## 출력
 
 - [[interface-contracts#VerificationFinding]] 배열
 - 심각도: info, warning, error
 - 문서 갱신 후보
+- 명시 TraceLink가 있는 finding의 TraceLink evidence
+- v1 finding 종류: `missing-code-trace`, `stale-doc-for-code-path`, `constraint-conflict`
 
 ## 의존 모듈
 
@@ -46,4 +49,4 @@ related_skills:
 - finding마다 evidence와 recommended action이 있다.
 - info/warning/error 구분이 [[traceability-model]] 기준과 일치한다.
 - 코드 변경 후 관련 문서 갱신 후보가 최소 하나 이상 제안된다.
-
+- v1은 warning-first로 동작하며 finding만으로 CLI를 실패 종료하지 않는다.

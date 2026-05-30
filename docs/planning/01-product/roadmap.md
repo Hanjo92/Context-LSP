@@ -24,11 +24,12 @@ related_skills:
 
 - `context-bootstrap`, `retrieve-project-context`, `plan-with-project-brain`, `verify-architecture-drift`를 우선 구현한다.
 - Markdown 파일 검색, wikilink 그래프, 키워드 기반 rag-lite를 제공한다.
+- `ContextPack.code_refs`는 local source 검색으로 채운다.
 - 코드 변경은 자동 차단하지 않고 warning/report를 낸다.
 
 완료 기준: Greenfield/Brownfield 샘플 저장소에서 `ContextPack`과 drift report를 생성한다.
 
-현재 상태: 구현됨. 보장 범위는 [[implementation-guarantees]]에 등록한다.
+현재 상태: 구현됨. 코드 경로 검색과 변경 경로 기반 drift warning까지 [[implementation-guarantees]]에 등록한다.
 
 ## 단계 2: Local CLI and Index
 

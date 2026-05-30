@@ -1,4 +1,5 @@
 import { extractConstraints } from './constraints.js';
+import { searchCodeRefs } from './code-search.js';
 import { resolveDoc, summarizeDocument } from './indexer.js';
 
 const TASK_TYPES = new Set(['plan', 'code', 'review', 'bootstrap', 'analyze', 'product', 'docs-update']);
@@ -30,12 +31,13 @@ export function normalizeContextQuery(input = {}) {
   };
 }
 
-export function retrieveContextPack(index, queryInput, { limit = 8 } = {}) {
+export async function retrieveContextPack(index, queryInput, { limit = 8, root = null } = {}) {
   const query = normalizeContextQuery(queryInput);
   const selected = selectDocuments(index, query, limit);
   const expanded = expandLinkedDocuments(index, selected, limit);
   const constraints = extractConstraints(expanded);
   const traceLinks = buildTraceLinks(expanded);
+  const codeRefs = root ? await searchCodeRefs({ root, query }) : [];
   const gaps = [];
 
   if (expanded.length === 0) gaps.push('No relevant documents found for ContextQuery.');
@@ -49,7 +51,7 @@ export function retrieveContextPack(index, queryInput, { limit = 8 } = {}) {
       ...summarizeDocument(doc),
       why_relevant: explainRelevance(doc, query)
     })),
-    code_refs: [],
+    code_refs: codeRefs,
     constraints,
     trace_links: traceLinks,
     confidence: confidenceFor(expanded, gaps),
@@ -153,4 +155,3 @@ function normalizeConcepts(concepts) {
   }
   return concepts.map((term) => String(term).trim()).filter(Boolean);
 }
-

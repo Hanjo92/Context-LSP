@@ -36,6 +36,7 @@ related_skills:
 - 전체 기획 볼트 구조를 `docs/planning` 아래에 두기로 했다.
 - private GitHub 저장소를 만들고 Phase 1 MVP를 `34e77e8` 커밋으로 push했다.
 - 보장점 레지스트리를 코드와 문서에 등록했다.
+- `ContextPack.code_refs` 검색과 변경 경로 기반 code-doc drift warning을 후속 보장점으로 추가했다.
 
 ## 다음 ADR 후보
 

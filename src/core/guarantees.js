@@ -54,6 +54,24 @@ const GUARANTEES = [
     limitations: ['Retrieval is local rag-lite, not embedding-based semantic search.']
   },
   {
+    id: 'G-CODE-REFS',
+    status: 'verified',
+    statement: 'ContextPack retrieval can populate code_refs from repository source files using task concepts and target paths.',
+    verification: ['npm test', 'test/context-lsp.test.js:searchCodeRefs ignores dependency, build, coverage, context, and generated directories', 'test/context-lsp.test.js:searchCodeRefs narrows target paths by path segment', 'test/context-lsp.test.js:retrieveContextPack includes evidence-backed code_refs when root is provided'],
+    implementation_refs: ['src/core/code-search.js', 'src/core/retriever.js', 'src/cli.js'],
+    source_docs: ['docs/planning/02-architecture/interface-contracts.md', 'docs/planning/03-modules/module-context-retriever.md'],
+    limitations: ['Source symbol extraction is regex-based and supports common JavaScript export patterns first.', 'Code search excludes dependency, dist/build, coverage, generated, and .context-lsp directories by directory name.']
+  },
+  {
+    id: 'G-CODE-DOC-DRIFT',
+    status: 'verified',
+    statement: 'Verification can report changed code paths that lack explicit planning TraceLinks and include retrieved TraceLink evidence for stale or conflicting planning docs.',
+    verification: ['npm test', 'test/context-lsp.test.js:verifyCodeDrift reports changed code paths missing from planning trace links', 'test/context-lsp.test.js:verifyCodeDrift accepts repository scan input', 'test/context-lsp.test.js:verifyCodeDrift reports stale docs and constraint conflicts for changed code paths', 'test/context-lsp.test.js:CLI verify accepts changed paths and returns code-doc drift findings', 'test/context-lsp.test.js:CLI verify warning findings do not hard block with non-zero exit'],
+    implementation_refs: ['src/core/verify.js', 'src/cli.js'],
+    source_docs: ['docs/planning/03-modules/module-drift-detector.md', 'docs/planning/02-architecture/traceability-model.md'],
+    limitations: ['Current drift detection checks explicit Markdown TraceLink lines and code-path mentions, not semantic architecture equivalence.']
+  },
+  {
     id: 'G-CONSTRAINT-SOURCES',
     status: 'verified',
     statement: 'Constraint extraction classifies must/should/warn rules and preserves source path references.',
