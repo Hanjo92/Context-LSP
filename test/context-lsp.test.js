@@ -10,6 +10,7 @@ import { searchCodeRefs } from '../src/core/code-search.js';
 import { listGuarantees } from '../src/core/guarantees.js';
 import { buildIndex } from '../src/core/indexer.js';
 import { extractConstraints } from '../src/core/constraints.js';
+import { initProjectBrain } from '../src/core/project-brain.js';
 import { normalizeContextQuery, retrieveContextPack } from '../src/core/retriever.js';
 import { analyzeRepository, reverseEngineerProject } from '../src/core/repository-analyzer.js';
 import { verifyCodeDrift, verifyVault } from '../src/core/verify.js';
@@ -363,6 +364,42 @@ test('reverseEngineerProject creates an indexable Context Vault for brownfield r
   assert.ok(pack.code_refs.some((ref) => ref.relativePath === 'src/index.js'));
 });
 
+test('initProjectBrain creates an indexable Context Vault for greenfield ideas', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'context-lsp-greenfield-'));
+  const result = await initProjectBrain({
+    root,
+    name: 'Recipe Agent',
+    idea: 'AI recipe assistant that plans meals from pantry ingredients.'
+  });
+  const docsDir = join(root, 'docs', 'planning');
+  const index = await buildIndex({ docsDir });
+  const productVision = await readFile(join(docsDir, '01-product', 'product-vision.md'), 'utf8');
+  const systemOverview = await readFile(join(docsDir, '02-architecture', 'system-overview.md'), 'utf8');
+  const moduleOverview = await readFile(join(docsDir, '03-modules', 'modules-overview.md'), 'utf8');
+  const adr = await readFile(join(docsDir, '05-adrs', 'ADR-0001-initial-product-direction.md'), 'utf8');
+
+  assert.ok(result.generated_docs.some((doc) => doc.relativePath === '00-agent-retrieval-map.md'));
+  assert.ok(result.generated_docs.some((doc) => doc.relativePath === '01-product/product-vision.md'));
+  assert.equal(index.brokenLinks.length, 0);
+  assert.equal(index.brokenFragments.length, 0);
+  assert.match(productVision, /Recipe Agent/);
+  assert.match(productVision, /pantry ingredients/);
+  assert.match(systemOverview, /ContextPack/);
+  assert.match(moduleOverview, /MVP-MODULE/);
+  assert.match(adr, /status: draft/);
+  assert.match(adr, /Recipe Agent/);
+
+  const pack = await retrieveContextPack(
+    index,
+    normalizeContextQuery({
+      task: 'Recipe Agent 초기 구현 계획을 세운다',
+      task_type: 'plan',
+      target_concepts: ['Recipe Agent', 'MVP']
+    })
+  );
+  assert.ok(pack.documents.some((doc) => doc.id === 'PRODUCT-VISION'));
+});
+
 test('CLI bootstrap outputs a ProjectSnapshot JSON document', () => {
   const output = execFileSync(
     process.execPath,
@@ -374,6 +411,57 @@ test('CLI bootstrap outputs a ProjectSnapshot JSON document', () => {
   assert.equal(snapshot.mode, 'brownfield');
   assert.equal(snapshot.recommended_next_skill, 'reverse-engineer-project');
   assert.ok(snapshot.evidence.length >= 3);
+});
+
+test('CLI init-project-brain creates planning docs for a greenfield project', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'context-lsp-cli-greenfield-'));
+  const output = execFileSync(
+    process.execPath,
+    [
+      cliPath,
+      'init-project-brain',
+      '--root',
+      root,
+      '--name',
+      'Habit Coach',
+      '--idea',
+      'A habit coaching app that turns goals into daily check-ins.'
+    ],
+    { encoding: 'utf8' }
+  );
+  const result = JSON.parse(output);
+  const index = await buildIndex({ docsDir: join(root, 'docs', 'planning') });
+
+  assert.equal(result.project.name, 'Habit Coach');
+  assert.ok(result.generated_docs.some((doc) => doc.relativePath === '05-adrs/ADR-0001-initial-product-direction.md'));
+  assert.equal(index.brokenLinks.length, 0);
+});
+
+test('CLI init-project-brain resolves relative docs under the target root', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'context-lsp-cli-greenfield-docs-'));
+  const output = execFileSync(
+    process.execPath,
+    [
+      cliPath,
+      'init-project-brain',
+      '--root',
+      root,
+      '--docs',
+      'docs/planning',
+      '--name',
+      'Field Notes',
+      '--idea',
+      'A field note app that turns observations into searchable project context.'
+    ],
+    { encoding: 'utf8' }
+  );
+  const result = JSON.parse(output);
+  const docsDir = join(root, 'docs', 'planning');
+  const index = await buildIndex({ docsDir });
+
+  assert.equal(result.docs, docsDir);
+  assert.ok(result.generated_docs.every((doc) => doc.path.startsWith(docsDir)));
+  assert.equal(index.brokenLinks.length, 0);
 });
 
 test('CLI reverse-engineer creates planning docs for another brownfield project', async () => {
@@ -413,5 +501,6 @@ test('CLI guarantees outputs the guarantee registry as JSON', () => {
   assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-CODE-REFS'));
   assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-CODE-DOC-DRIFT'));
   assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-BROWNFIELD-REVERSE-ENGINEER'));
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-GREENFIELD-INIT-PROJECT-BRAIN'));
   assert.ok(guarantees.every((guarantee) => Array.isArray(guarantee.source_docs)));
 });

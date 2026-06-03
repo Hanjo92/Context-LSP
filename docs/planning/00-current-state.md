@@ -38,6 +38,7 @@ related_skills:
 - 보장점 레지스트리를 코드와 문서에 등록했다.
 - `ContextPack.code_refs` 검색과 변경 경로 기반 code-doc drift warning을 후속 보장점으로 추가했다.
 - 기존 프로젝트 역분석으로 초기 Context Vault를 생성하는 `reverse-engineer-project` 흐름을 구현했다.
+- 빈 프로젝트 아이디어에서 초기 Context Vault를 생성하는 `init-project-brain` 흐름을 구현했다.
 
 ## 다음 ADR 후보
 

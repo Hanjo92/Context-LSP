@@ -81,6 +81,15 @@ const GUARANTEES = [
     limitations: ['Generated module boundaries are evidence-backed candidates, not confirmed architecture decisions.']
   },
   {
+    id: 'G-GREENFIELD-INIT-PROJECT-BRAIN',
+    status: 'verified',
+    statement: 'The init-project-brain flow can create an indexable initial Context Vault from a greenfield product idea.',
+    verification: ['npm test', 'test/context-lsp.test.js:initProjectBrain creates an indexable Context Vault for greenfield ideas', 'test/context-lsp.test.js:CLI init-project-brain creates planning docs for a greenfield project', 'test/context-lsp.test.js:CLI init-project-brain resolves relative docs under the target root'],
+    implementation_refs: ['src/core/project-brain.js', 'src/cli.js', 'skills/init-project-brain/SKILL.md'],
+    source_docs: ['docs/planning/04-skills/skill-init-project-brain.md', 'docs/planning/03-modules/module-context-vault-manager.md'],
+    limitations: ['Generated product and module docs are drafts until the user confirms scope and technical decisions.']
+  },
+  {
     id: 'G-CONSTRAINT-SOURCES',
     status: 'verified',
     statement: 'Constraint extraction classifies must/should/warn rules and preserves source path references.',

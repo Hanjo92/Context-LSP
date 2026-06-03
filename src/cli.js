@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { createProjectSnapshot } from './core/bootstrap.js';
 import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
+import { initProjectBrain } from './core/project-brain.js';
 import { normalizeContextQuery, retrieveContextPack } from './core/retriever.js';
 import { reverseEngineerProject } from './core/repository-analyzer.js';
 import { verifyCodeDrift, verifyVault } from './core/verify.js';
@@ -39,6 +40,14 @@ try {
     printJson([...vaultFindings, ...driftFindings]);
   } else if (command === 'bootstrap') {
     printJson(await createProjectSnapshot({ root: options.root || process.cwd(), docs: options.docs }));
+  } else if (command === 'init-project-brain' || command === 'init-brain') {
+    printJson(await initProjectBrain({
+      root: options.root || process.cwd(),
+      docs: options.docs,
+      name: options.name,
+      idea: options.idea,
+      overwrite: Boolean(options.overwrite)
+    }));
   } else if (command === 'reverse-engineer' || command === 'analyze') {
     printJson(await reverseEngineerProject({
       root: options.root || process.cwd(),
@@ -94,6 +103,7 @@ function usage() {
   context-lsp retrieve --docs docs/planning --task "..." --type plan [--root .] [--concept ContextPack] [--target src]
   context-lsp verify --docs docs/planning [--root . --changed src/file.js]
   context-lsp bootstrap --root . --docs docs/planning
+  context-lsp init-project-brain --root . --idea "..." [--name "Project Name"] [--docs docs/planning] [--overwrite]
   context-lsp reverse-engineer --root . [--docs docs/planning] [--overwrite]
   context-lsp guarantees`);
 }
