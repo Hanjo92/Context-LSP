@@ -26,6 +26,7 @@ npm run verify
 node src/cli.js retrieve --docs docs/planning --root . --task "ContextPack code_refs 확인" --type code --concept ContextPack --target src
 node src/cli.js output-guard --docs docs/planning --root . --task "ContextPack code_refs 확인" --type code --target src/core/retriever.js --plan "Use retrieved ContextPack constraints before editing."
 node src/cli.js verify --docs docs/planning --root . --changed src/core/retriever.js
+node src/cli.js diagnostics --docs docs/planning --root . --changed src/core/retriever.js
 node src/cli.js recommend-doc-updates --docs docs/planning --root . --changed src/core/retriever.js
 node src/cli.js init-project-brain --root /tmp/context-lsp-greenfield --name "Sample" --idea "Sample product idea"
 node src/cli.js reverse-engineer --root test/fixtures/brownfield --docs /tmp/context-lsp-brownfield-docs
@@ -46,6 +47,7 @@ python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin
 | `G-CODE-DOC-DRIFT` | 변경 코드 경로에 명시 TraceLink가 없거나 stale/금지 제약과 충돌하면 검색된 TraceLink evidence가 포함된 warning finding으로 보고한다. | `src/core/verify.js`, `src/cli.js` |
 | `G-OUTPUT-GUARD` | 코드 출력 후보를 `ContextPack` 제약과 대상 경로 traceability에 대조해 source-backed warning과 대안을 hard block 없이 보고한다. | `src/core/output-guard.js`, `src/cli.js`, `skills/generate-compliant-code/SKILL.md` |
 | `G-DOC-UPDATE-RECOMMENDER` | drift finding을 최소 문서 갱신 추천, TraceLink 후보, ADR 후보로 변환한다. | `src/core/doc-update-recommender.js`, `src/cli.js`, `skills/update-project-brain/SKILL.md` |
+| `G-LSP-DIAGNOSTICS` | verification finding을 관련 계획 문서 정보가 포함된 advisory LSP-style diagnostic으로 변환한다. | `src/core/lsp-diagnostics.js`, `src/cli.js` |
 | `G-BROWNFIELD-REVERSE-ENGINEER` | 기존 저장소의 manifest/source/test evidence를 분석해 색인 가능한 초기 Context Vault를 생성한다. | `src/core/repository-analyzer.js`, `src/cli.js`, `skills/reverse-engineer-project/SKILL.md` |
 | `G-GREENFIELD-INIT-PROJECT-BRAIN` | Greenfield 제품 아이디어에서 색인 가능한 초기 Context Vault를 생성한다. | `src/core/project-brain.js`, `src/cli.js`, `skills/init-project-brain/SKILL.md` |
 | `G-CONSTRAINT-SOURCES` | `must`, `should`, `warn` 제약을 source path와 함께 추출한다. | `src/core/constraints.js` |
@@ -64,4 +66,4 @@ python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin
 - init-project-brain 문서는 제품/모듈/ADR 초안을 draft로 생성하며 사용자 확정을 대신하지 않는다.
 - heading fragment matching은 Phase 1에서 정확한 heading text 기준으로만 동작한다.
 - Codex plugin은 repo-local scaffold이며 marketplace 배포 또는 skill workflow end-to-end 실행 테스트 상태가 아니다.
-- LSP diagnostic adapter는 아직 구현되지 않았다.
+- 실시간 LSP 서버 프로세스는 아직 구현되지 않았고, Phase 1은 CLI JSON diagnostic adapter만 제공한다.

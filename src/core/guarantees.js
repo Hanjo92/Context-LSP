@@ -90,6 +90,15 @@ const GUARANTEES = [
     limitations: ['Recommendations are drafts that require user approval before authoritative planning docs are changed.']
   },
   {
+    id: 'G-LSP-DIAGNOSTICS',
+    status: 'verified',
+    statement: 'Verification findings can be exposed as advisory LSP-style diagnostics with related planning document information.',
+    verification: ['npm test', 'test/context-lsp.test.js:toLspDiagnostics maps findings to advisory diagnostics with related planning docs', 'test/context-lsp.test.js:CLI diagnostics outputs advisory LSP diagnostics'],
+    implementation_refs: ['src/core/lsp-diagnostics.js', 'src/cli.js'],
+    source_docs: ['docs/planning/01-product/roadmap.md', 'docs/planning/05-adrs/ADR-0001-codex-centered-runtime.md', 'docs/planning/05-adrs/ADR-0006-warning-first-architecture-guard.md'],
+    limitations: ['Phase 1 emits diagnostic JSON through the CLI; it does not run a real-time LSP server process.']
+  },
+  {
     id: 'G-BROWNFIELD-REVERSE-ENGINEER',
     status: 'verified',
     statement: 'The reverse-engineer flow can analyze an existing repository and create an indexable initial Context Vault with evidence-backed repository docs.',

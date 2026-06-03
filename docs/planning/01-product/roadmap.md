@@ -47,5 +47,6 @@ related_skills:
 
 - 같은 코어 인덱스와 검증기를 LSP diagnostic으로 노출한다.
 - IDE에서는 실시간 경고만 제공하고 결정은 Codex/사용자 흐름에서 처리한다.
+- Phase 1은 `diagnostics` CLI로 advisory LSP-style JSON을 먼저 제공한다.
 
 완료 기준: 코드 위치와 관련 ADR/문서 링크가 diagnostic에 포함된다.

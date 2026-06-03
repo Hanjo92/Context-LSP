@@ -28,7 +28,7 @@ related_skills:
 
 - 임베딩 제공자는 아직 정하지 않았다. v1 문서는 local rag-lite 우선만 결정한다.
 - LSP 서버 구현 시점은 roadmap의 후순위로 남긴다.
-- persistent index 파일, LSP adapter는 아직 구현되지 않았다.
+- persistent index 파일과 실시간 LSP 서버는 아직 구현되지 않았다.
 
 ## 최근 변경
 
@@ -39,6 +39,7 @@ related_skills:
 - `ContextPack.code_refs` 검색과 변경 경로 기반 code-doc drift warning을 후속 보장점으로 추가했다.
 - 코드 출력 후보를 ContextPack 제약과 대조하는 warning-first `output-guard` 흐름을 구현했다.
 - drift finding에서 TraceLink/ADR 후보를 제안하는 `recommend-doc-updates` 흐름을 구현했다.
+- verification finding을 advisory LSP-style diagnostic JSON으로 바꾸는 `diagnostics` 어댑터를 구현했다.
 - 기존 프로젝트 역분석으로 초기 Context Vault를 생성하는 `reverse-engineer-project` 흐름을 구현했다.
 - 빈 프로젝트 아이디어에서 초기 Context Vault를 생성하는 `init-project-brain` 흐름을 구현했다.
 

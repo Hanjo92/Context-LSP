@@ -9,6 +9,7 @@ import { createProjectSnapshot } from '../src/core/bootstrap.js';
 import { searchCodeRefs } from '../src/core/code-search.js';
 import { listGuarantees } from '../src/core/guarantees.js';
 import { buildIndex } from '../src/core/indexer.js';
+import { toLspDiagnostics } from '../src/core/lsp-diagnostics.js';
 import { extractConstraints } from '../src/core/constraints.js';
 import { recommendDocUpdates } from '../src/core/doc-update-recommender.js';
 import { guardOutput } from '../src/core/output-guard.js';
@@ -331,6 +332,27 @@ test('recommendDocUpdates converts drift findings into TraceLink and ADR suggest
   assert.ok(report.recommendations.every((recommendation) => recommendation.approval_required));
 });
 
+test('toLspDiagnostics maps findings to advisory diagnostics with related planning docs', async () => {
+  const index = await buildIndex({ docsDir: join(driftRoot, 'docs', 'planning') });
+  const findings = await verifyCodeDrift({
+    index,
+    root: driftRoot,
+    changedPaths: ['src/users/profile.js']
+  });
+
+  const diagnostics = toLspDiagnostics({ findings, root: driftRoot });
+  const diagnostic = diagnostics[0];
+
+  assert.equal(diagnostic.source, 'Context-LSP');
+  assert.equal(diagnostic.code, 'missing-code-trace');
+  assert.equal(diagnostic.severity, 2);
+  assert.ok(diagnostic.uri.endsWith('/src/users/profile.js'));
+  assert.equal(diagnostic.data.hard_blocked, false);
+  assert.equal(diagnostic.data.advisory, true);
+  assert.ok(diagnostic.relatedInformation.some((info) => info.location.uri.endsWith('/docs/planning/00-index.md')));
+  assert.ok(diagnostic.message.includes('recommended'));
+});
+
 test('CLI retrieve outputs a JSON ContextPack', () => {
   const output = execFileSync(
     process.execPath,
@@ -420,6 +442,28 @@ test('CLI recommend-doc-updates reports minimal document update suggestions', ()
   assert.ok(report.findings.some((finding) => finding.kind === 'missing-code-trace'));
   assert.ok(report.recommendations.some((recommendation) => recommendation.kind === 'add-trace-link'));
   assert.ok(report.trace_link_candidates.some((candidate) => candidate.source_path === 'src/users/profile.js'));
+});
+
+test('CLI diagnostics outputs advisory LSP diagnostics', () => {
+  const output = execFileSync(
+    process.execPath,
+    [
+      cliPath,
+      'diagnostics',
+      '--docs',
+      join(driftRoot, 'docs', 'planning'),
+      '--root',
+      driftRoot,
+      '--changed',
+      'src/users/profile.js'
+    ],
+    { encoding: 'utf8' }
+  );
+  const diagnostics = JSON.parse(output);
+
+  assert.ok(diagnostics.some((diagnostic) => diagnostic.code === 'missing-code-trace'));
+  assert.ok(diagnostics.every((diagnostic) => diagnostic.source === 'Context-LSP'));
+  assert.ok(diagnostics.every((diagnostic) => diagnostic.data.advisory === true));
 });
 
 test('CLI verify accepts changed paths and returns code-doc drift findings', () => {

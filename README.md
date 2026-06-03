@@ -11,6 +11,7 @@ The current Phase 1 MVP implements local rag-lite over Markdown planning docs:
 - run warning-first output guard checks before code generation
 - report warning-first vault and code-doc drift findings
 - recommend minimal planning doc updates after drift findings
+- expose verification findings as advisory LSP-style diagnostics
 - expose bootstrap/index/retrieve/verify through a local CLI
 - provide repo-local Codex skill scaffolding under `skills/`
 
@@ -27,6 +28,7 @@ node src/cli.js retrieve --docs docs/planning --root . --task "ContextPack code 
 node src/cli.js output-guard --docs docs/planning --root . --task "ContextPack 기반 코드 생성" --type code --target src/core/retriever.js --plan "Use retrieved ContextPack constraints before editing."
 node src/cli.js verify --docs docs/planning
 node src/cli.js verify --docs docs/planning --root . --changed src/core/retriever.js
+node src/cli.js diagnostics --docs docs/planning --root . --changed src/core/retriever.js
 node src/cli.js recommend-doc-updates --docs docs/planning --root . --changed src/core/retriever.js
 node src/cli.js init-project-brain --root . --docs docs/planning --name "My Project" --idea "One sentence product idea"
 node src/cli.js reverse-engineer --root . --docs docs/planning
@@ -63,6 +65,7 @@ context-lsp reverse-engineer --root . --docs docs/planning
 context-lsp retrieve --docs docs/planning --root . --task "기능 구현 계획 작성" --type plan
 context-lsp output-guard --docs docs/planning --root . --task "기능 구현" --type code --target src
 context-lsp verify --docs docs/planning
+context-lsp diagnostics --docs docs/planning --root . --changed src
 context-lsp recommend-doc-updates --docs docs/planning --root . --changed src
 ```
 

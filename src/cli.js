@@ -4,6 +4,7 @@ import { createProjectSnapshot } from './core/bootstrap.js';
 import { recommendDocUpdates } from './core/doc-update-recommender.js';
 import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
+import { toLspDiagnostics } from './core/lsp-diagnostics.js';
 import { guardOutput } from './core/output-guard.js';
 import { initProjectBrain } from './core/project-brain.js';
 import { normalizeContextQuery, retrieveContextPack } from './core/retriever.js';
@@ -57,6 +58,21 @@ try {
       })
       : [];
     printJson([...vaultFindings, ...driftFindings]);
+  } else if (command === 'diagnostics' || command === 'lsp-diagnostics') {
+    const index = await buildIndex({ docsDir: requiredPath(options.docs, 'docs') });
+    const vaultFindings = verifyVault(index);
+    const driftFindings = options.root || options.changed || options.scan
+      ? await verifyCodeDrift({
+        index,
+        root: options.root || process.cwd(),
+        changedPaths: normalizeOptionList(options.changed),
+        scan: Boolean(options.scan)
+      })
+      : [];
+    printJson(toLspDiagnostics({
+      findings: [...vaultFindings, ...driftFindings],
+      root: options.root || process.cwd()
+    }));
   } else if (command === 'recommend-doc-updates' || command === 'doc-updates') {
     const index = await buildIndex({ docsDir: requiredPath(options.docs, 'docs') });
     const changedPaths = normalizeOptionList(options.changed);
@@ -137,6 +153,7 @@ function usage() {
   context-lsp retrieve --docs docs/planning --task "..." --type plan [--root .] [--concept ContextPack] [--target src]
   context-lsp output-guard --docs docs/planning --task "..." [--root .] [--target src/file.js] [--plan "..."]
   context-lsp verify --docs docs/planning [--root . --changed src/file.js]
+  context-lsp diagnostics --docs docs/planning [--root . --changed src/file.js]
   context-lsp recommend-doc-updates --docs docs/planning [--root . --changed src/file.js]
   context-lsp bootstrap --root . --docs docs/planning
   context-lsp init-project-brain --root . --idea "..." [--name "Project Name"] [--docs docs/planning] [--overwrite]
