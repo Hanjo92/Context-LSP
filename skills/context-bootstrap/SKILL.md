@@ -12,7 +12,7 @@ Use this skill before implementation planning when the repository state is not y
 1. Run:
 
 ```bash
-node src/cli.js bootstrap --root . --docs docs/planning
+context-lsp bootstrap --root . --docs docs/planning
 ```
 
 2. Read the JSON `mode`, `docs_state`, and `evidence`.
@@ -25,4 +25,3 @@ node src/cli.js bootstrap --root . --docs docs/planning
 - Do not start code generation from an unclassified repository.
 - Do not treat assumptions as confirmed without evidence.
 - Use `docs/planning/00-agent-retrieval-map.md` as the next navigation document.
-

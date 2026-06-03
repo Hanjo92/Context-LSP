@@ -16,7 +16,7 @@ Use this skill when implementation changes make planning docs stale or incomplet
 5. Re-run:
 
 ```bash
-node src/cli.js verify --docs docs/planning
+context-lsp verify --docs docs/planning
 ```
 
 ## Rules
@@ -24,4 +24,3 @@ node src/cli.js verify --docs docs/planning
 - Do not rewrite unrelated planning docs.
 - Do not mark inferred Brownfield facts as confirmed without evidence.
 - Preserve wikilink traceability.
-

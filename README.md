@@ -27,6 +27,34 @@ node src/cli.js verify --docs docs/planning --root . --changed src/core/retrieve
 node src/cli.js guarantees
 ```
 
+## Cross-Project Testing
+
+Install the CLI from this repository once:
+
+```bash
+npm link
+```
+
+Register the repo skills globally:
+
+```bash
+ln -sfn /Users/song/Projects/Context-LSP/skills/context-bootstrap ~/.codex/skills/context-bootstrap
+ln -sfn /Users/song/Projects/Context-LSP/skills/retrieve-project-context ~/.codex/skills/retrieve-project-context
+ln -sfn /Users/song/Projects/Context-LSP/skills/plan-with-project-brain ~/.codex/skills/plan-with-project-brain
+ln -sfn /Users/song/Projects/Context-LSP/skills/verify-architecture-drift ~/.codex/skills/verify-architecture-drift
+ln -sfn /Users/song/Projects/Context-LSP/skills/update-project-brain ~/.codex/skills/update-project-brain
+```
+
+Then open another project and run:
+
+```bash
+context-lsp bootstrap --root . --docs docs/planning
+context-lsp retrieve --docs docs/planning --root . --task "기능 구현 계획 작성" --type plan
+context-lsp verify --docs docs/planning
+```
+
+If the other project has no `docs/planning` vault yet, start with `context-lsp bootstrap` and create the vault before retrieval/verification.
+
 ## Planning Vault
 
 Start from:

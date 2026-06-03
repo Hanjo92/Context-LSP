@@ -12,7 +12,7 @@ Use this skill after implementation, documentation changes, or review preparatio
 1. Run:
 
 ```bash
-node src/cli.js verify --docs docs/planning
+context-lsp verify --docs docs/planning
 ```
 
 2. Read each `VerificationFinding`.
@@ -24,4 +24,3 @@ node src/cli.js verify --docs docs/planning
 - Do not claim architecture alignment without running verification.
 - Do not convert warning-first findings into hard blocks unless the user asks.
 - Keep evidence paths in the final report.
-

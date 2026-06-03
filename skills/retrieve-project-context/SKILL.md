@@ -13,7 +13,7 @@ Use this skill to create a `ContextPack` before deciding implementation scope.
 2. Run:
 
 ```bash
-node src/cli.js retrieve --docs docs/planning --task "<task>" --type <task-type>
+context-lsp retrieve --docs docs/planning --root . --task "<task>" --type <task-type>
 ```
 
 3. Read `documents`, `constraints`, `confidence`, and `gaps`.
@@ -24,4 +24,3 @@ node src/cli.js retrieve --docs docs/planning --task "<task>" --type <task-type>
 - Do not finalize plans or code changes without a `ContextPack`.
 - Treat `confidence: low` as a blocker for strong claims.
 - Keep retrieved context scoped to the current task.
-
