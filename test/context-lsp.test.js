@@ -10,6 +10,7 @@ import { searchCodeRefs } from '../src/core/code-search.js';
 import { listGuarantees } from '../src/core/guarantees.js';
 import { buildIndex } from '../src/core/indexer.js';
 import { extractConstraints } from '../src/core/constraints.js';
+import { recommendDocUpdates } from '../src/core/doc-update-recommender.js';
 import { guardOutput } from '../src/core/output-guard.js';
 import { initProjectBrain } from '../src/core/project-brain.js';
 import { normalizeContextQuery, retrieveContextPack } from '../src/core/retriever.js';
@@ -312,6 +313,24 @@ test('guardOutput passes when target paths are represented and no constraints ap
   assert.equal(report.findings.length, 0);
 });
 
+test('recommendDocUpdates converts drift findings into TraceLink and ADR suggestions', async () => {
+  const index = await buildIndex({ docsDir: join(driftRoot, 'docs', 'planning') });
+  const findings = await verifyCodeDrift({
+    index,
+    root: driftRoot,
+    changedPaths: ['src/users/profile.js', 'src/legacy/payment-hack.js']
+  });
+
+  const report = recommendDocUpdates({ findings, changedPaths: ['src/users/profile.js', 'src/legacy/payment-hack.js'] });
+
+  assert.ok(report.recommendations.some((recommendation) => recommendation.kind === 'add-trace-link'));
+  assert.ok(report.recommendations.some((recommendation) => recommendation.kind === 'refresh-stale-doc'));
+  assert.ok(report.trace_link_candidates.some((candidate) => candidate.source_path === 'src/users/profile.js'));
+  assert.ok(report.trace_link_candidates.some((candidate) => candidate.snippet.includes('implements [[')));
+  assert.ok(report.adr_candidates.some((candidate) => candidate.reason.includes('constraint')));
+  assert.ok(report.recommendations.every((recommendation) => recommendation.approval_required));
+});
+
 test('CLI retrieve outputs a JSON ContextPack', () => {
   const output = execFileSync(
     process.execPath,
@@ -379,6 +398,28 @@ test('CLI output-guard checks a proposed path against ContextPack constraints', 
   assert.equal(report.decision, 'warn');
   assert.ok(report.findings.some((finding) => finding.kind === 'must-constraint-review'));
   assert.ok(report.findings.every((finding) => finding.severity === 'warning'));
+});
+
+test('CLI recommend-doc-updates reports minimal document update suggestions', () => {
+  const output = execFileSync(
+    process.execPath,
+    [
+      cliPath,
+      'recommend-doc-updates',
+      '--docs',
+      join(driftRoot, 'docs', 'planning'),
+      '--root',
+      driftRoot,
+      '--changed',
+      'src/users/profile.js'
+    ],
+    { encoding: 'utf8' }
+  );
+  const report = JSON.parse(output);
+
+  assert.ok(report.findings.some((finding) => finding.kind === 'missing-code-trace'));
+  assert.ok(report.recommendations.some((recommendation) => recommendation.kind === 'add-trace-link'));
+  assert.ok(report.trace_link_candidates.some((candidate) => candidate.source_path === 'src/users/profile.js'));
 });
 
 test('CLI verify accepts changed paths and returns code-doc drift findings', () => {

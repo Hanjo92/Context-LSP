@@ -81,6 +81,15 @@ const GUARANTEES = [
     limitations: ['v1 evaluates retrieved constraints and target path traceability; it does not prove semantic code compliance.']
   },
   {
+    id: 'G-DOC-UPDATE-RECOMMENDER',
+    status: 'verified',
+    statement: 'The doc update recommender converts verification findings into minimal planning doc recommendations, TraceLink candidates, and ADR candidates.',
+    verification: ['npm test', 'test/context-lsp.test.js:recommendDocUpdates converts drift findings into TraceLink and ADR suggestions', 'test/context-lsp.test.js:CLI recommend-doc-updates reports minimal document update suggestions'],
+    implementation_refs: ['src/core/doc-update-recommender.js', 'src/cli.js', 'skills/update-project-brain/SKILL.md'],
+    source_docs: ['docs/planning/03-modules/module-doc-update-recommender.md', 'docs/planning/04-skills/skill-update-project-brain.md', 'docs/planning/02-architecture/traceability-model.md'],
+    limitations: ['Recommendations are drafts that require user approval before authoritative planning docs are changed.']
+  },
+  {
     id: 'G-BROWNFIELD-REVERSE-ENGINEER',
     status: 'verified',
     statement: 'The reverse-engineer flow can analyze an existing repository and create an indexable initial Context Vault with evidence-backed repository docs.',

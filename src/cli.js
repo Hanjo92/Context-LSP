@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { resolve } from 'node:path';
 import { createProjectSnapshot } from './core/bootstrap.js';
+import { recommendDocUpdates } from './core/doc-update-recommender.js';
 import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
 import { guardOutput } from './core/output-guard.js';
@@ -56,6 +57,21 @@ try {
       })
       : [];
     printJson([...vaultFindings, ...driftFindings]);
+  } else if (command === 'recommend-doc-updates' || command === 'doc-updates') {
+    const index = await buildIndex({ docsDir: requiredPath(options.docs, 'docs') });
+    const changedPaths = normalizeOptionList(options.changed);
+    const findings = options.root || options.changed || options.scan
+      ? await verifyCodeDrift({
+        index,
+        root: options.root || process.cwd(),
+        changedPaths,
+        scan: Boolean(options.scan)
+      })
+      : verifyVault(index);
+    printJson({
+      findings,
+      ...recommendDocUpdates({ findings, changedPaths })
+    });
   } else if (command === 'bootstrap') {
     printJson(await createProjectSnapshot({ root: options.root || process.cwd(), docs: options.docs }));
   } else if (command === 'init-project-brain' || command === 'init-brain') {
@@ -121,6 +137,7 @@ function usage() {
   context-lsp retrieve --docs docs/planning --task "..." --type plan [--root .] [--concept ContextPack] [--target src]
   context-lsp output-guard --docs docs/planning --task "..." [--root .] [--target src/file.js] [--plan "..."]
   context-lsp verify --docs docs/planning [--root . --changed src/file.js]
+  context-lsp recommend-doc-updates --docs docs/planning [--root . --changed src/file.js]
   context-lsp bootstrap --root . --docs docs/planning
   context-lsp init-project-brain --root . --idea "..." [--name "Project Name"] [--docs docs/planning] [--overwrite]
   context-lsp reverse-engineer --root . [--docs docs/planning] [--overwrite]

@@ -26,6 +26,7 @@ npm run verify
 node src/cli.js retrieve --docs docs/planning --root . --task "ContextPack code_refs 확인" --type code --concept ContextPack --target src
 node src/cli.js output-guard --docs docs/planning --root . --task "ContextPack code_refs 확인" --type code --target src/core/retriever.js --plan "Use retrieved ContextPack constraints before editing."
 node src/cli.js verify --docs docs/planning --root . --changed src/core/retriever.js
+node src/cli.js recommend-doc-updates --docs docs/planning --root . --changed src/core/retriever.js
 node src/cli.js init-project-brain --root /tmp/context-lsp-greenfield --name "Sample" --idea "Sample product idea"
 node src/cli.js reverse-engineer --root test/fixtures/brownfield --docs /tmp/context-lsp-brownfield-docs
 python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py /Users/song/Projects/Context-LSP
@@ -44,6 +45,7 @@ python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin
 | `G-CODE-REFS` | `ContextPack.code_refs`를 작업 concept와 target path에 맞는 저장소 소스 경로로 채운다. | `src/core/code-search.js`, `src/core/retriever.js`, `src/cli.js` |
 | `G-CODE-DOC-DRIFT` | 변경 코드 경로에 명시 TraceLink가 없거나 stale/금지 제약과 충돌하면 검색된 TraceLink evidence가 포함된 warning finding으로 보고한다. | `src/core/verify.js`, `src/cli.js` |
 | `G-OUTPUT-GUARD` | 코드 출력 후보를 `ContextPack` 제약과 대상 경로 traceability에 대조해 source-backed warning과 대안을 hard block 없이 보고한다. | `src/core/output-guard.js`, `src/cli.js`, `skills/generate-compliant-code/SKILL.md` |
+| `G-DOC-UPDATE-RECOMMENDER` | drift finding을 최소 문서 갱신 추천, TraceLink 후보, ADR 후보로 변환한다. | `src/core/doc-update-recommender.js`, `src/cli.js`, `skills/update-project-brain/SKILL.md` |
 | `G-BROWNFIELD-REVERSE-ENGINEER` | 기존 저장소의 manifest/source/test evidence를 분석해 색인 가능한 초기 Context Vault를 생성한다. | `src/core/repository-analyzer.js`, `src/cli.js`, `skills/reverse-engineer-project/SKILL.md` |
 | `G-GREENFIELD-INIT-PROJECT-BRAIN` | Greenfield 제품 아이디어에서 색인 가능한 초기 Context Vault를 생성한다. | `src/core/project-brain.js`, `src/cli.js`, `skills/init-project-brain/SKILL.md` |
 | `G-CONSTRAINT-SOURCES` | `must`, `should`, `warn` 제약을 source path와 함께 추출한다. | `src/core/constraints.js` |
@@ -56,6 +58,7 @@ python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin
 - `ContextPack.code_refs`는 regex 기반 symbol/keyword 검색이며 AST 또는 embedding 기반 의미 검색은 아니다.
 - drift detector는 명시 Markdown TraceLink와 코드 경로 언급을 확인하며, 실제 diff hunk나 의미론적 아키텍처 일치까지 판단하지 않는다.
 - output guard는 검색된 제약과 target path 근거를 보고하며, 실제 코드의 의미론적 준수 여부를 증명하지 않는다.
+- doc update recommender는 초안 후보만 만들며 사용자 승인 없이 권위 문서를 직접 수정하지 않는다.
 - 언어/프레임워크 추론은 Phase 1에서 얕은 evidence 판별만 제공한다.
 - reverse-engineer 문서는 module boundary를 후보로 기록하며, confirmed architecture decision으로 승격하지 않는다.
 - init-project-brain 문서는 제품/모듈/ADR 초안을 draft로 생성하며 사용자 확정을 대신하지 않는다.
