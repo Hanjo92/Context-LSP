@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { createProjectSnapshot } from './core/bootstrap.js';
 import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
+import { guardOutput } from './core/output-guard.js';
 import { initProjectBrain } from './core/project-brain.js';
 import { normalizeContextQuery, retrieveContextPack } from './core/retriever.js';
 import { reverseEngineerProject } from './core/repository-analyzer.js';
@@ -26,6 +27,23 @@ try {
       target_paths: normalizeOptionList(options.target)
     });
     printJson(await retrieveContextPack(index, query, { root: options.root || null }));
+  } else if (command === 'output-guard' || command === 'guard-output') {
+    const index = await buildIndex({ docsDir: requiredPath(options.docs, 'docs') });
+    const targetPaths = normalizeOptionList(options.target);
+    const query = normalizeContextQuery({
+      task: options.task || options.plan || '',
+      task_type: options.type || 'code',
+      target_concepts: options.concept || [],
+      target_paths: targetPaths
+    });
+    const contextPack = await retrieveContextPack(index, query, { root: options.root || null });
+    printJson(guardOutput({
+      contextPack,
+      proposal: {
+        summary: options.plan || options.task || '',
+        targetPaths
+      }
+    }));
   } else if (command === 'verify') {
     const index = await buildIndex({ docsDir: requiredPath(options.docs, 'docs') });
     const vaultFindings = verifyVault(index);
@@ -101,6 +119,7 @@ function usage() {
   console.error(`Usage:
   context-lsp index --docs docs/planning
   context-lsp retrieve --docs docs/planning --task "..." --type plan [--root .] [--concept ContextPack] [--target src]
+  context-lsp output-guard --docs docs/planning --task "..." [--root .] [--target src/file.js] [--plan "..."]
   context-lsp verify --docs docs/planning [--root . --changed src/file.js]
   context-lsp bootstrap --root . --docs docs/planning
   context-lsp init-project-brain --root . --idea "..." [--name "Project Name"] [--docs docs/planning] [--overwrite]

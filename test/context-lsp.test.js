@@ -10,6 +10,7 @@ import { searchCodeRefs } from '../src/core/code-search.js';
 import { listGuarantees } from '../src/core/guarantees.js';
 import { buildIndex } from '../src/core/indexer.js';
 import { extractConstraints } from '../src/core/constraints.js';
+import { guardOutput } from '../src/core/output-guard.js';
 import { initProjectBrain } from '../src/core/project-brain.js';
 import { normalizeContextQuery, retrieveContextPack } from '../src/core/retriever.js';
 import { analyzeRepository, reverseEngineerProject } from '../src/core/repository-analyzer.js';
@@ -140,6 +141,29 @@ test('extractConstraints keeps source references and classifies must and warning
   assert.ok(constraints.every((constraint) => constraint.source.path.endsWith('ADR-0001-context-pack.md')));
 });
 
+test('extractConstraints ignores frontmatter and section headings', () => {
+  const constraints = extractConstraints([
+    {
+      id: 'DOC-WITH-METADATA',
+      type: 'module',
+      path: '/tmp/doc-with-metadata.md',
+      content: `---
+id: DOC-WITH-METADATA
+type: module
+related_adrs:
+  - "[[ADR-0006-warning-first-architecture-guard]]"
+---
+
+## 금지 행동
+
+- v1 guard는 hard block 대신 warning을 제공한다.`
+    }
+  ]);
+
+  assert.equal(constraints.length, 1);
+  assert.equal(constraints[0].statement, 'v1 guard는 hard block 대신 warning을 제공한다.');
+});
+
 test('verifyVault returns warning-first findings for broken links without hard blocking', async () => {
   const index = await buildIndex({ docsDir: brokenVault });
   const findings = verifyVault(index);
@@ -214,6 +238,80 @@ test('verifyCodeDrift reports stale docs and constraint conflicts for changed co
   assert.ok(findings.every((finding) => finding.recommended_action));
 });
 
+test('guardOutput returns warning-first findings with source-backed alternatives', async () => {
+  const index = await buildIndex({ docsDir: fixtureVault });
+  const contextPack = await retrieveContextPack(
+    index,
+    normalizeContextQuery({
+      task: 'ContextPack 기반 코드 생성',
+      task_type: 'code',
+      target_concepts: ['ContextPack']
+    })
+  );
+
+  const report = guardOutput({
+    contextPack,
+    proposal: {
+      summary: 'Generate code that relies on ContextPack context.',
+      targetPaths: ['src/context-pack.js']
+    }
+  });
+
+  assert.equal(report.hard_blocked, false);
+  assert.equal(report.decision, 'warn');
+  assert.ok(report.findings.some((finding) => finding.kind === 'must-constraint-review'));
+  assert.ok(report.findings.some((finding) => finding.kind === 'untraced-target-path'));
+  assert.ok(report.findings.every((finding) => finding.severity === 'warning'));
+  assert.ok(report.findings.every((finding) => finding.recommended_action));
+  assert.ok(report.findings.every((finding) => finding.alternative));
+  assert.ok(report.findings.some((finding) => finding.evidence.some((item) => item.path?.endsWith('ADR-0001-context-pack.md'))));
+});
+
+test('guardOutput normalizes target paths without substring false positives', () => {
+  const report = guardOutput({
+    contextPack: {
+      query: { task_type: 'code' },
+      documents: [],
+      code_refs: [{ relativePath: 'src/payments/kakao-payment.js' }],
+      constraints: [],
+      trace_links: [],
+      gaps: [],
+      confidence: 'high'
+    },
+    proposal: {
+      summary: 'Change an untraced partial path.',
+      targetPaths: ['./src/payments/kakao', 'src/payments/kakao']
+    }
+  });
+
+  const untracedFindings = report.findings.filter((finding) => finding.kind === 'untraced-target-path');
+  assert.equal(report.decision, 'warn');
+  assert.equal(untracedFindings.length, 1);
+  assert.match(untracedFindings[0].message, /src\/payments\/kakao/);
+});
+
+test('guardOutput passes when target paths are represented and no constraints apply', () => {
+  const report = guardOutput({
+    contextPack: {
+      query: { task_type: 'code' },
+      documents: [],
+      code_refs: [{ relativePath: 'src/payments/kakao-payment.js' }],
+      constraints: [],
+      trace_links: [],
+      gaps: [],
+      confidence: 'high'
+    },
+    proposal: {
+      summary: 'Change a retrieved source path.',
+      targetPaths: ['src/payments/kakao-payment.js']
+    }
+  });
+
+  assert.equal(report.decision, 'pass');
+  assert.equal(report.hard_blocked, false);
+  assert.equal(report.findings.length, 0);
+});
+
 test('CLI retrieve outputs a JSON ContextPack', () => {
   const output = execFileSync(
     process.execPath,
@@ -253,6 +351,34 @@ test('CLI retrieve accepts root and target options for code_refs', () => {
   const pack = JSON.parse(output);
 
   assert.ok(pack.code_refs.some((ref) => ref.relativePath === 'src/payments/kakao-payment.js'));
+});
+
+test('CLI output-guard checks a proposed path against ContextPack constraints', () => {
+  const output = execFileSync(
+    process.execPath,
+    [
+      cliPath,
+      'output-guard',
+      '--docs',
+      fixtureVault,
+      '--task',
+      'ContextPack 기반 코드 생성',
+      '--type',
+      'code',
+      '--target',
+      'src/context-pack.js',
+      '--plan',
+      'Generate code that relies on ContextPack context.'
+    ],
+    { encoding: 'utf8' }
+  );
+  const report = JSON.parse(output);
+
+  assert.equal(report.query.task_type, 'code');
+  assert.equal(report.hard_blocked, false);
+  assert.equal(report.decision, 'warn');
+  assert.ok(report.findings.some((finding) => finding.kind === 'must-constraint-review'));
+  assert.ok(report.findings.every((finding) => finding.severity === 'warning'));
 });
 
 test('CLI verify accepts changed paths and returns code-doc drift findings', () => {

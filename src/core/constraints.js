@@ -7,7 +7,18 @@ export function extractConstraints(documents) {
   const seen = new Set();
 
   for (const doc of documents) {
+    let inFrontmatter = false;
     for (const [index, line] of doc.content.split('\n').entries()) {
+      if (index === 0 && line.trim() === '---') {
+        inFrontmatter = true;
+        continue;
+      }
+      if (inFrontmatter) {
+        if (line.trim() === '---') inFrontmatter = false;
+        continue;
+      }
+      if (/^#+\s+/.test(line)) continue;
+
       const statement = normalizeLine(line);
       if (!statement || statement.startsWith('---') || statement.startsWith('> Context Links:')) continue;
 

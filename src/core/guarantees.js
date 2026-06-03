@@ -72,6 +72,15 @@ const GUARANTEES = [
     limitations: ['Current drift detection checks explicit Markdown TraceLink lines and code-path mentions, not semantic architecture equivalence.']
   },
   {
+    id: 'G-OUTPUT-GUARD',
+    status: 'verified',
+    statement: 'The output guard checks proposed code output against ContextPack constraints and returns source-backed warning findings with alternatives without hard blocking.',
+    verification: ['npm test', 'test/context-lsp.test.js:guardOutput returns warning-first findings with source-backed alternatives', 'test/context-lsp.test.js:guardOutput normalizes target paths without substring false positives', 'test/context-lsp.test.js:guardOutput passes when target paths are represented and no constraints apply', 'test/context-lsp.test.js:CLI output-guard checks a proposed path against ContextPack constraints'],
+    implementation_refs: ['src/core/output-guard.js', 'src/cli.js', 'skills/generate-compliant-code/SKILL.md'],
+    source_docs: ['docs/planning/03-modules/module-output-guard.md', 'docs/planning/04-skills/skill-generate-compliant-code.md', 'docs/planning/06-validation/architecture-review-checklist.md'],
+    limitations: ['v1 evaluates retrieved constraints and target path traceability; it does not prove semantic code compliance.']
+  },
+  {
     id: 'G-BROWNFIELD-REVERSE-ENGINEER',
     status: 'verified',
     statement: 'The reverse-engineer flow can analyze an existing repository and create an indexable initial Context Vault with evidence-backed repository docs.',
@@ -112,7 +121,7 @@ const GUARANTEES = [
     status: 'verified',
     statement: 'The repo contains a valid Codex plugin manifest and skill docs that reference CLI workflows.',
     verification: ['python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py /Users/song/Projects/Context-LSP'],
-    implementation_refs: ['.codex-plugin/plugin.json', 'skills/context-bootstrap/SKILL.md', 'skills/retrieve-project-context/SKILL.md', 'skills/plan-with-project-brain/SKILL.md', 'skills/verify-architecture-drift/SKILL.md', 'skills/update-project-brain/SKILL.md'],
+    implementation_refs: ['.codex-plugin/plugin.json', 'skills/context-bootstrap/SKILL.md', 'skills/init-project-brain/SKILL.md', 'skills/reverse-engineer-project/SKILL.md', 'skills/retrieve-project-context/SKILL.md', 'skills/plan-with-project-brain/SKILL.md', 'skills/generate-compliant-code/SKILL.md', 'skills/verify-architecture-drift/SKILL.md', 'skills/update-project-brain/SKILL.md'],
     source_docs: ['docs/planning/04-skills/skills-overview.md', 'docs/planning/02-architecture/codex-runtime-and-agent-policy.md'],
     limitations: ['The plugin is repo-local, not marketplace-published, and skill workflows are documented rather than end-to-end executed in tests.']
   }

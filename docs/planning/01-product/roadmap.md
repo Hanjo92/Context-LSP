@@ -27,6 +27,7 @@ related_skills:
 - Brownfield 프로젝트는 `reverse-engineer-project`로 초기 Context Vault를 생성한다.
 - Markdown 파일 검색, wikilink 그래프, 키워드 기반 rag-lite를 제공한다.
 - `ContextPack.code_refs`는 local source 검색으로 채운다.
+- 코드 출력 전 `output-guard`로 ContextPack 제약과 target path traceability를 warning-first로 점검한다.
 - 코드 변경은 자동 차단하지 않고 warning/report를 낸다.
 
 완료 기준: Greenfield/Brownfield 샘플 저장소에서 `ContextPack`과 drift report를 생성한다.
