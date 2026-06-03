@@ -34,7 +34,7 @@ related_skills:
 
 - 원본 Gemini 대화에서 제품 문제, Codex 스킬 파이프라인, Greenfield/Brownfield 부트스트랩 요구를 추출했다.
 - 전체 기획 볼트 구조를 `docs/planning` 아래에 두기로 했다.
-- private GitHub 저장소를 만들고 Phase 1 MVP를 `34e77e8` 커밋으로 push했다.
+- private GitHub 저장소에서 Phase 1 구현 흐름과 보장점 레지스트리를 `main` 브랜치에 반영했다.
 - 보장점 레지스트리를 코드와 문서에 등록했다.
 - `ContextPack.code_refs` 검색과 변경 경로 기반 code-doc drift warning을 후속 보장점으로 추가했다.
 - 코드 출력 후보를 ContextPack 제약과 대조하는 warning-first `output-guard` 흐름을 구현했다.
