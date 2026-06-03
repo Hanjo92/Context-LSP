@@ -1,7 +1,7 @@
 {
   "name": "context-lsp",
   "version": "0.1.0",
-  "description": "Codex-centered context layer for project planning, code output, and architecture drift checks.",
+  "description": "Codex-centered context layer for project planning, ContextPack retrieval, and architecture drift checks.",
   "author": {
     "name": "Hanjo92"
   },
@@ -10,8 +10,10 @@
   "keywords": [
     "codex",
     "context",
+    "context-engineering",
     "rag",
     "architecture",
+    "cli",
     "docs-as-code"
   ],
   "skills": "./skills/",
@@ -32,4 +34,3 @@
     ]
   }
 }
-

@@ -1,6 +1,6 @@
 # Context-LSP
 
-Context-LSP is a Codex-centered context layer for project planning, code output, and warning-first architecture context checks.
+Context-LSP is a Codex-centered context layer for project planning, ContextPack retrieval, and warning-first architecture drift checks.
 
 The current Phase 1 MVP implements local rag-lite over Markdown planning docs:
 
