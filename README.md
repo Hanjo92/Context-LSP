@@ -1,6 +1,6 @@
 # Context-LSP
 
-Context-LSP is a Codex-centered context layer for project planning, ContextPack retrieval, and warning-first architecture drift checks.
+Context-LSP is a Codex-centered CLI and skill layer for ContextPack retrieval, project-brain bootstrapping, warning-first guards, architecture drift checks, doc-update recommendations, and advisory diagnostics.
 
 The current Phase 1 MVP implements local rag-lite over Markdown planning docs:
 
@@ -12,8 +12,29 @@ The current Phase 1 MVP implements local rag-lite over Markdown planning docs:
 - report warning-first vault and code-doc drift findings
 - recommend minimal planning doc updates after drift findings
 - expose verification findings as advisory LSP-style diagnostics
-- expose bootstrap/index/retrieve/verify through a local CLI
+- expose bootstrap/index/retrieve/output-guard/verify/diagnostics/recommend-doc-updates through a local CLI
 - provide repo-local Codex skill scaffolding under `skills/`
+
+## Install
+
+Use directly with `npx`:
+
+```bash
+npx context-lsp bootstrap --root . --docs docs/planning
+```
+
+Or install the CLI globally:
+
+```bash
+npm install -g context-lsp
+context-lsp bootstrap --root . --docs docs/planning
+```
+
+For local development from this repository:
+
+```bash
+npm link
+```
 
 ## Commands
 
@@ -35,9 +56,11 @@ node src/cli.js reverse-engineer --root . --docs docs/planning
 node src/cli.js guarantees
 ```
 
+After global install or `npm link`, replace `node src/cli.js` with `context-lsp`.
+
 ## Cross-Project Testing
 
-Install the CLI from this repository once:
+Install the CLI from this repository once for local testing:
 
 ```bash
 npm link
@@ -87,3 +110,7 @@ The current implementation guarantee registry is available in two forms:
 
 - human-readable: `docs/planning/06-validation/implementation-guarantees.md`
 - machine-readable: `node src/cli.js guarantees`
+
+## NPM Package
+
+The npm package ships the CLI source, planning docs, and Codex skill scaffolds. Tests and fixtures are excluded from the published tarball.
