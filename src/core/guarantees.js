@@ -72,6 +72,15 @@ const GUARANTEES = [
     limitations: ['Current drift detection checks explicit Markdown TraceLink lines and code-path mentions, not semantic architecture equivalence.']
   },
   {
+    id: 'G-BROWNFIELD-REVERSE-ENGINEER',
+    status: 'verified',
+    statement: 'The reverse-engineer flow can analyze an existing repository and create an indexable initial Context Vault with evidence-backed repository docs.',
+    verification: ['npm test', 'test/context-lsp.test.js:analyzeRepository reports brownfield structure with evidence', 'test/context-lsp.test.js:reverseEngineerProject creates an indexable Context Vault for brownfield repositories', 'test/context-lsp.test.js:CLI reverse-engineer creates planning docs for another brownfield project'],
+    implementation_refs: ['src/core/repository-analyzer.js', 'src/cli.js', 'skills/reverse-engineer-project/SKILL.md'],
+    source_docs: ['docs/planning/04-skills/skill-reverse-engineer-project.md', 'docs/planning/03-modules/module-repository-analyzer.md'],
+    limitations: ['Generated module boundaries are evidence-backed candidates, not confirmed architecture decisions.']
+  },
+  {
     id: 'G-CONSTRAINT-SOURCES',
     status: 'verified',
     statement: 'Constraint extraction classifies must/should/warn rules and preserves source path references.',

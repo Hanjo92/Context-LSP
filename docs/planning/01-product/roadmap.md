@@ -23,6 +23,7 @@ related_skills:
 ## 단계 1: Codex Skill MVP
 
 - `context-bootstrap`, `retrieve-project-context`, `plan-with-project-brain`, `verify-architecture-drift`를 우선 구현한다.
+- Brownfield 프로젝트는 `reverse-engineer-project`로 초기 Context Vault를 생성한다.
 - Markdown 파일 검색, wikilink 그래프, 키워드 기반 rag-lite를 제공한다.
 - `ContextPack.code_refs`는 local source 검색으로 채운다.
 - 코드 변경은 자동 차단하지 않고 warning/report를 낸다.

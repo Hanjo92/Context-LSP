@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { cp, mkdtemp, readFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
@@ -9,6 +11,7 @@ import { listGuarantees } from '../src/core/guarantees.js';
 import { buildIndex } from '../src/core/indexer.js';
 import { extractConstraints } from '../src/core/constraints.js';
 import { normalizeContextQuery, retrieveContextPack } from '../src/core/retriever.js';
+import { analyzeRepository, reverseEngineerProject } from '../src/core/repository-analyzer.js';
 import { verifyCodeDrift, verifyVault } from '../src/core/verify.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -313,6 +316,53 @@ test('createProjectSnapshot classifies empty, docs-only, and manifest projects',
   assert.ok(brownfield.evidence.some((item) => item.reason === 'test directory exists'));
 });
 
+test('analyzeRepository reports brownfield structure with evidence', async () => {
+  const analysis = await analyzeRepository({ root: brownfieldRoot });
+
+  assert.equal(analysis.mode, 'brownfield');
+  assert.ok(analysis.languages.some((language) => language.name === 'javascript' && language.confidence === 'confirmed'));
+  assert.ok(analysis.manifests.some((manifest) => manifest.relativePath === 'package.json'));
+  assert.ok(analysis.source_dirs.some((dir) => dir.relativePath === 'src'));
+  assert.ok(analysis.entrypoints.some((entrypoint) => entrypoint.relativePath === 'src/index.js'));
+  assert.ok(analysis.test_structure.paths.some((testPath) => testPath.relativePath === 'test'));
+  assert.ok(analysis.evidence.every((item) => item.path && item.reason));
+});
+
+test('reverseEngineerProject creates an indexable Context Vault for brownfield repositories', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'context-lsp-brownfield-'));
+  await cp(brownfieldRoot, root, { recursive: true });
+
+  const result = await reverseEngineerProject({ root });
+  const docsDir = join(root, 'docs', 'planning');
+  const index = await buildIndex({ docsDir });
+  const currentState = await readFile(join(docsDir, '00-current-state.md'), 'utf8');
+  const repositoryOverview = await readFile(join(docsDir, '02-architecture', 'repository-overview.md'), 'utf8');
+  const moduleMap = await readFile(join(docsDir, '02-architecture', 'module-map.md'), 'utf8');
+  const testStructure = await readFile(join(docsDir, '02-architecture', 'test-structure.md'), 'utf8');
+
+  assert.ok(result.generated_docs.some((doc) => doc.relativePath === '02-architecture/repository-overview.md'));
+  assert.equal(index.brokenLinks.length, 0);
+  assert.equal(index.brokenFragments.length, 0);
+  assert.match(currentState, /status: confirmed/);
+  assert.match(repositoryOverview, /package\.json/);
+  assert.match(repositoryOverview, /src\/index\.js/);
+  assert.match(moduleMap, /`src\/index\.js` implements \[\[module-map]]/);
+  assert.match(testStructure, /test\/index\.test\.js/);
+
+  const pack = await retrieveContextPack(
+    index,
+    normalizeContextQuery({
+      task: '기존 프로젝트 구조를 분석해 구현 계획을 준비한다',
+      task_type: 'analyze',
+      target_concepts: ['repository', 'module', 'test'],
+      target_paths: ['src']
+    }),
+    { root }
+  );
+  assert.ok(pack.documents.some((doc) => doc.id === 'REPOSITORY-OVERVIEW'));
+  assert.ok(pack.code_refs.some((ref) => ref.relativePath === 'src/index.js'));
+});
+
 test('CLI bootstrap outputs a ProjectSnapshot JSON document', () => {
   const output = execFileSync(
     process.execPath,
@@ -324,6 +374,22 @@ test('CLI bootstrap outputs a ProjectSnapshot JSON document', () => {
   assert.equal(snapshot.mode, 'brownfield');
   assert.equal(snapshot.recommended_next_skill, 'reverse-engineer-project');
   assert.ok(snapshot.evidence.length >= 3);
+});
+
+test('CLI reverse-engineer creates planning docs for another brownfield project', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'context-lsp-cli-brownfield-'));
+  await cp(brownfieldRoot, root, { recursive: true });
+
+  const output = execFileSync(
+    process.execPath,
+    [cliPath, 'reverse-engineer', '--root', root],
+    { encoding: 'utf8' }
+  );
+  const result = JSON.parse(output);
+
+  assert.equal(result.analysis.mode, 'brownfield');
+  assert.ok(result.generated_docs.some((doc) => doc.relativePath === '00-index.md'));
+  assert.ok(result.generated_docs.some((doc) => doc.relativePath === '02-architecture/module-map.md'));
 });
 
 test('listGuarantees returns only verification-backed implementation guarantees', () => {
@@ -346,5 +412,6 @@ test('CLI guarantees outputs the guarantee registry as JSON', () => {
   assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-CONTEXTPACK'));
   assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-CODE-REFS'));
   assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-CODE-DOC-DRIFT'));
+  assert.ok(guarantees.some((guarantee) => guarantee.id === 'G-BROWNFIELD-REVERSE-ENGINEER'));
   assert.ok(guarantees.every((guarantee) => Array.isArray(guarantee.source_docs)));
 });

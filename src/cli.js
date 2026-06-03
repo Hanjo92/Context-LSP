@@ -4,6 +4,7 @@ import { createProjectSnapshot } from './core/bootstrap.js';
 import { listGuarantees } from './core/guarantees.js';
 import { buildIndex, serializeIndex } from './core/indexer.js';
 import { normalizeContextQuery, retrieveContextPack } from './core/retriever.js';
+import { reverseEngineerProject } from './core/repository-analyzer.js';
 import { verifyCodeDrift, verifyVault } from './core/verify.js';
 
 const args = process.argv.slice(2);
@@ -38,6 +39,12 @@ try {
     printJson([...vaultFindings, ...driftFindings]);
   } else if (command === 'bootstrap') {
     printJson(await createProjectSnapshot({ root: options.root || process.cwd(), docs: options.docs }));
+  } else if (command === 'reverse-engineer' || command === 'analyze') {
+    printJson(await reverseEngineerProject({
+      root: options.root || process.cwd(),
+      docs: options.docs,
+      overwrite: Boolean(options.overwrite)
+    }));
   } else if (command === 'guarantees') {
     printJson(listGuarantees());
   } else {
@@ -87,5 +94,6 @@ function usage() {
   context-lsp retrieve --docs docs/planning --task "..." --type plan [--root .] [--concept ContextPack] [--target src]
   context-lsp verify --docs docs/planning [--root . --changed src/file.js]
   context-lsp bootstrap --root . --docs docs/planning
+  context-lsp reverse-engineer --root . [--docs docs/planning] [--overwrite]
   context-lsp guarantees`);
 }

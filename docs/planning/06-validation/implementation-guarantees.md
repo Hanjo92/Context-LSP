@@ -25,6 +25,7 @@ npm test
 npm run verify
 node src/cli.js retrieve --docs docs/planning --root . --task "ContextPack code_refs 확인" --type code --concept ContextPack --target src
 node src/cli.js verify --docs docs/planning --root . --changed src/core/retriever.js
+node src/cli.js reverse-engineer --root test/fixtures/brownfield --docs /tmp/context-lsp-brownfield-docs
 python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py /Users/song/Projects/Context-LSP
 ```
 
@@ -40,6 +41,7 @@ python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin
 | `G-CONTEXTPACK` | `ContextQuery`를 정규화하고 `ContextPack` JSON을 조립한다. | `src/core/retriever.js`, `src/cli.js` |
 | `G-CODE-REFS` | `ContextPack.code_refs`를 작업 concept와 target path에 맞는 저장소 소스 경로로 채운다. | `src/core/code-search.js`, `src/core/retriever.js`, `src/cli.js` |
 | `G-CODE-DOC-DRIFT` | 변경 코드 경로에 명시 TraceLink가 없거나 stale/금지 제약과 충돌하면 검색된 TraceLink evidence가 포함된 warning finding으로 보고한다. | `src/core/verify.js`, `src/cli.js` |
+| `G-BROWNFIELD-REVERSE-ENGINEER` | 기존 저장소의 manifest/source/test evidence를 분석해 색인 가능한 초기 Context Vault를 생성한다. | `src/core/repository-analyzer.js`, `src/cli.js`, `skills/reverse-engineer-project/SKILL.md` |
 | `G-CONSTRAINT-SOURCES` | `must`, `should`, `warn` 제약을 source path와 함께 추출한다. | `src/core/constraints.js` |
 | `G-WARNING-FIRST` | v1 검증은 finding을 보고하지만 사용자 작업을 hard block하지 않는다. | `src/core/verify.js`, [[ADR-0006-warning-first-architecture-guard]] |
 | `G-PLUGIN-SCAFFOLD` | repo-local Codex plugin manifest와 CLI 연동 스킬 스캐폴드가 유효하다. | `.codex-plugin/plugin.json`, `skills/*/SKILL.md` |
@@ -50,6 +52,7 @@ python3 /Users/song/.codex/skills/.system/plugin-creator/scripts/validate_plugin
 - `ContextPack.code_refs`는 regex 기반 symbol/keyword 검색이며 AST 또는 embedding 기반 의미 검색은 아니다.
 - drift detector는 명시 Markdown TraceLink와 코드 경로 언급을 확인하며, 실제 diff hunk나 의미론적 아키텍처 일치까지 판단하지 않는다.
 - 언어/프레임워크 추론은 Phase 1에서 얕은 evidence 판별만 제공한다.
+- reverse-engineer 문서는 module boundary를 후보로 기록하며, confirmed architecture decision으로 승격하지 않는다.
 - heading fragment matching은 Phase 1에서 정확한 heading text 기준으로만 동작한다.
 - Codex plugin은 repo-local scaffold이며 marketplace 배포 또는 skill workflow end-to-end 실행 테스트 상태가 아니다.
 - LSP diagnostic adapter는 아직 구현되지 않았다.
