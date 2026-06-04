@@ -7,6 +7,10 @@ description: Use when an existing repository needs Context-LSP planning docs boo
 
 Use this skill when `context-bootstrap` reports a brownfield project with missing or incomplete `docs/planning`.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Run:

@@ -7,6 +7,10 @@ description: Use when code, plans, or ADR decisions require updating Context-LSP
 
 Use this skill when implementation changes make planning docs stale or incomplete.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Run `verify-architecture-drift` and collect findings.

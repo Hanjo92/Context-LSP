@@ -7,6 +7,10 @@ description: Use when a greenfield project or product idea needs an initial Cont
 
 Use this skill when `context-bootstrap` reports a greenfield project or the user gives a new product idea that needs planning docs first.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Extract a short project name and one-sentence idea from the user request.

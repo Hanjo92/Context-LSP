@@ -7,6 +7,10 @@ description: Use after code or planning document changes to run Context-LSP warn
 
 Use this skill after implementation, documentation changes, or review preparation.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Run:

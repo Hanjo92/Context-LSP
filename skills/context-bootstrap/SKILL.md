@@ -7,6 +7,10 @@ description: Use when starting Context-LSP work in a repository to classify proj
 
 Use this skill before implementation planning when the repository state is not yet classified.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Run:

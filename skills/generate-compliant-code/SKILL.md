@@ -7,6 +7,10 @@ description: Use before generating or modifying code when Context-LSP constraint
 
 Use this skill after `retrieve-project-context` and before code edits that must respect Context-LSP planning docs.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Retrieve code context for the task:

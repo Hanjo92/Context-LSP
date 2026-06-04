@@ -7,6 +7,10 @@ description: Use before planning, code output, or review to build a ContextPack 
 
 Use this skill to create a `ContextPack` before deciding implementation scope.
 
+## CLI
+
+Use `context-lsp` when it is installed globally or linked from this repo. In another project where the binary is missing, run the same command with `npx context-lsp@latest`.
+
 ## Workflow
 
 1. Convert the user request into a short task sentence and task type: `plan`, `code`, `review`, `bootstrap`, `analyze`, `product`, or `docs-update`.

@@ -1,7 +1,7 @@
 {
   "name": "context-lsp",
   "version": "0.1.0",
-  "description": "Codex-centered context layer for project planning, ContextPack retrieval, and architecture drift checks.",
+  "description": "Codex-centered CLI and skill layer for ContextPack retrieval, project-brain bootstrapping, warning-first guards, drift checks, and diagnostics.",
   "author": {
     "name": "Hanjo92"
   },
@@ -14,13 +14,15 @@
     "rag",
     "architecture",
     "cli",
-    "docs-as-code"
+    "docs-as-code",
+    "developer-tools",
+    "diagnostics"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Context LSP",
-    "shortDescription": "Project context retrieval and drift checks for Codex.",
-    "longDescription": "Context LSP helps Codex retrieve project planning docs, build ContextPacks, and report architecture drift before and after implementation work.",
+    "shortDescription": "ContextPack retrieval, project-brain bootstrap, and warning-first guards for Codex.",
+    "longDescription": "Context LSP helps Codex bootstrap project-brain docs, retrieve ContextPacks, enforce warning-first output guards, report architecture drift, and recommend documentation updates across greenfield and brownfield work.",
     "developerName": "Hanjo92",
     "category": "Productivity",
     "capabilities": [
@@ -28,9 +30,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Use Context LSP to plan this change from project docs.",
-      "Use Context LSP to verify architecture drift.",
-      "Use Context LSP to update the project brain."
+      "Use Context LSP to bootstrap this project brain.",
+      "Use Context LSP to retrieve a ContextPack for this change.",
+      "Use Context LSP to verify architecture drift and recommend doc updates."
     ]
   }
 }
